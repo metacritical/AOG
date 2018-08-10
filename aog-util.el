@@ -217,6 +217,6 @@ alternative to `ht-from-plist'."
         (ht-set h key value)))))
 
 
-(provide 'op-util)
+(provide 'aog-util)
 
 ;;; op-util.el ends here

@@ -1,6 +1,6 @@
 (define-package
-  "org-page" "0.5"
-  "a static site generator based on org mode"
+  "aog" "0.1"
+  "a static site generator based on fork of org-page"
   '((ht "1.5")
     (simple-httpd "1.4.6")
     (mustache "0.22")

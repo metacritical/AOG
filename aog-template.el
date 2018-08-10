@@ -29,9 +29,9 @@
 (require 'cl-lib)
 ;; (require 'mustache)
 (autoload 'mustache-render "mustache")
-(require 'op-util)
-(require 'op-vars)
-(require 'op-git)
+(require 'aog-util)
+(require 'aog-vars)
+(require 'aog-git)
 
 
 (defun op/get-template-dir ()
@@ -298,6 +298,6 @@ ATTR-PLIST is the attribute plist of the buffer, retrieved by the combination of
     param-table))
 
 
-(provide 'op-template)
+(provide 'aog-template)
 
 ;;; op-template.el ends here

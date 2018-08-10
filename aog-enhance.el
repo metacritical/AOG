@@ -28,8 +28,8 @@
 (require 'format-spec)
 (require 'ox)
 (require 'ht)
-(require 'op-util)
-(require 'op-vars)
+(require 'aog-util)
+(require 'aog-vars)
 
 
 (defun op/get-theme-dir ()
@@ -55,6 +55,6 @@
     (copy-directory theme-dir pub-theme-dir t t t)))
 
 
-(provide 'op-enhance)
+(provide 'aog-enhance)
 
 ;;; op-enhance.el ends here

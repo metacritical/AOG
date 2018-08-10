@@ -251,6 +251,6 @@ representing the date in its new format."
   :type 'boolean)
 
 
-(provide 'op-vars)
+(provide 'aog-vars)
 
-;;; op-vars.el ends here
+;;; aog-vars.el ends here

@@ -27,8 +27,8 @@
 
 (require 'ox)
 (require 'ht)
-(require 'op-util)
-(require 'op-vars)
+(require 'aog-util)
+(require 'aog-vars)
 (require 'git)
 (require 'dash)
 
@@ -123,6 +123,6 @@ it will be created."
     (git-push remote-repo branch)))
 
 
-(provide 'op-git)
+(provide 'aog-git)
 
 ;;; op-git.el ends here

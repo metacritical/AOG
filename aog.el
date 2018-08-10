@@ -45,11 +45,11 @@
 
 (require 'ox)
 (require 'ht)
-(require 'op-util)
-(require 'op-vars)
-(require 'op-git)
-(require 'op-enhance)
-(require 'op-export)
+(require 'aog-util)
+(require 'aog-vars)
+(require 'aog-git)
+(require 'aog-enhance)
+(require 'aog-export)
 (require 'simple-httpd)
 
 (defconst org-page-version "0.5")
@@ -341,6 +341,6 @@ When invoked without prefix argument then PATH defaults to
   (browse-url (format "http://%s:%d" "localhost" httpd-port)))
 
 
-(provide 'org-page)
+(provide 'aog)
 
 ;;; org-page.el ends here

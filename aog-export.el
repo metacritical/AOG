@@ -30,10 +30,10 @@
 (require 'ht)
 (require 'dash)
 (require 'cl-lib)
-(require 'op-util)
-(require 'op-vars)
-(require 'op-git)
-(require 'op-template)
+(require 'aog-util)
+(require 'aog-vars)
+(require 'aog-git)
+(require 'aog-template)
 
 
 (defun op/publish-changes (all-list change-plist pub-root-dir)
@@ -739,6 +739,6 @@ PUB-BASE-DIR is the root publication directory."
      (concat pub-base-dir "rss.xml"))))
 
 
-(provide 'op-export)
+(provide 'aog-export)
 
 ;;; op-export.el ends here

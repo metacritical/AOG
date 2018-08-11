@@ -337,7 +337,8 @@ When invoked without prefix argument then PATH defaults to
        (list (read-directory-name "Path: "))
        (list op/site-preview-directory)))
   (op/do-publication t nil path)
-  (unless (get-process "httpd") (httpd-serve-directory path))
+  (unless (get-process "httpd")
+    (httpd-serve-directory path))
   (browse-url (format "http://%s:%d" "localhost" httpd-port)))
 
 

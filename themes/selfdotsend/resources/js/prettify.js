@@ -1,84 +1,77 @@
-/**
- * @license
- * Copyright (C) 2006 Google Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+(function () {
+  var GO_KEYWORDS = /\b(?:break|case|chan|const|continue|default|defer|else|fallthrough|for|func|go|goto|if|import|interface|map|package|range|return|select|struct|switch|type|var)\b/g;
+  var SH_KEYWORDS = /\b(?:if|then|else|elif|fi|for|in|do|done|case|esac|while|until|function|select|time)\b/g;
 
-/**
- * @fileoverview
- * Registers a language handler for various flavors of basic.
- *
- * To use, include prettify.js and this file in your HTML page.
- * Then put your code in an HTML tag like
- *      <pre class="prettyprint lang-basic"></pre>
- *
- * @author peter.henderson@gmail.com
- */
-
-PR['registerLangHandler'](
-    PR['createSimpleLexer'](
-        [
-         // Whitespace
-         [PR['PR_PLAIN'],       /^[\t\n\r \xA0]+/, null, '\t\n\r \xA0'],
-         // A line comment that starts with REM
-         [PR['PR_COMMENT'],     /^(?:REM[^\n\r]*)/i, null],
-        ],
-        [
-         [PR['PR_KEYWORD'], /^(?:DATA|LET|GO(?:TO|SUB)|RETURN|(?:END)?(?:FOR|IF|NEXT|SELECT|WHILE|FUNCTION|SUB))\b/i, null],
-         [PR['PR_LITERAL'], /^(?:TRUE|FALSE|NULL)\b/i, null],
-         // A number is a decimal real literal or in scientific notation.
-         [PR['PR_LITERAL'], /^[+-]?(?:(?:(?:\.\d+|\d+\.\d+)(?:E[+-]?\d+)?)|(?:\d+E[+-]?\d+))/i, null],
-         // An identifier
-         [PR['PR_PLAIN'], /^[A-Z_$][A-Z0-9_$]*/i, null],
-         // A run of punctuation
-         [PR['PR_PUNCTUATION'], /^[^\w\t\n\r \xA0\"\\\'\`\-\+\*]+/, null],
-         // String, character, or attribute value
-         [PR['PR_STRING'], /^[\"\\\'\`][^\"\\\'\`]*(?:[\"\\\'\`]|$)/, null]
-        ]),
-    ['basic', 'cbm']);
-
-// Code to initialize prettify syntax highlighting
-function prettyPrint() {
-  // Convert source blocks to prettify format
-  var blocks = document.querySelectorAll('pre.src');
-  blocks.forEach(function(block) {
-    block.classList.remove('src');
-    block.classList.add('prettyprint');
-    // Convert language class
-    Array.from(block.classList).forEach(function(cls) {
-      if (cls.startsWith('src-')) {
-        var lang = cls.substring(4);
-        block.classList.remove(cls);
-        block.classList.add('lang-' + lang);
-      }
-    });
-  });
-
-  // Initialize syntax highlighting
-  var elements = document.getElementsByTagName('pre');
-  for (var i = 0; i < elements.length; i++) {
-    var element = elements[i];
-    if (element.className.indexOf('prettyprint') >= 0) {
-      // Apply syntax highlighting
-      if (element.innerHTML) {
-        element.innerHTML = PR.prettyPrintOne(element.innerHTML, null, false);
-      }
-    }
+  function escapeHtml(text) {
+    return text
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
   }
-}
 
-// Initialize on page load
-document.addEventListener('DOMContentLoaded', function() {
-  prettyPrint();
-});
+  function stash(text, pattern, className, bank) {
+    return text.replace(pattern, function (m) {
+      var token = "@@HL" + bank.length + "@@";
+      bank.push('<span class="' + className + '">' + m + "</span>");
+      return token;
+    });
+  }
+
+  function restore(text, bank) {
+    return text.replace(/@@HL(\d+)@@/g, function (_, idx) {
+      return bank[Number(idx)] || "";
+    });
+  }
+
+  function langFromBlock(block) {
+    var lang = "";
+    Array.prototype.forEach.call(block.classList, function (cls) {
+      if (cls.indexOf("src-") === 0) lang = cls.slice(4).toLowerCase();
+    });
+    return lang;
+  }
+
+  function highlightGo(raw) {
+    var bank = [];
+    var text = escapeHtml(raw);
+    text = stash(text, /\/\/[^\n]*/g, "org-comment", bank);
+    text = stash(text, /`[^`]*`/g, "org-string", bank);
+    text = stash(text, /"(?:\\.|[^"\\])*"/g, "org-string", bank);
+    text = text.replace(GO_KEYWORDS, '<span class="org-keyword">$&</span>');
+    text = text.replace(/\b\d+(?:\.\d+)?\b/g, '<span class="org-constant">$&</span>');
+    return restore(text, bank);
+  }
+
+  function highlightShell(raw) {
+    var bank = [];
+    var text = escapeHtml(raw);
+    text = stash(text, /(^|\s)#.*$/gm, "org-comment", bank);
+    text = stash(text, /"(?:\\.|[^"\\])*"/g, "org-string", bank);
+    text = stash(text, /'(?:\\.|[^'\\])*'/g, "org-string", bank);
+    text = text.replace(SH_KEYWORDS, '<span class="org-keyword">$&</span>');
+    text = text.replace(/\$[A-Za-z_][A-Za-z0-9_]*/g, '<span class="org-variable-name">$&</span>');
+    return restore(text, bank);
+  }
+
+  function highlightBlock(block) {
+    if (block.querySelector("span[class^='org-']")) return;
+    var lang = langFromBlock(block);
+    var raw = block.textContent || "";
+    if (!raw.trim()) return;
+
+    var html = "";
+    if (lang === "go") {
+      html = highlightGo(raw);
+    } else if (lang === "bash" || lang === "sh" || lang === "shell" || lang === "zsh") {
+      html = highlightShell(raw);
+    } else {
+      return;
+    }
+    block.innerHTML = html;
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    var blocks = document.querySelectorAll("pre.src");
+    blocks.forEach(highlightBlock);
+  });
+})();

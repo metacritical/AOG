@@ -5,30 +5,30 @@
 
 (require 'org-page)
 
-(defun op/custom-org-page (&optional site)
+(defun aog/custom-org-page (&optional site)
   "choose the org-page's main repository"
   (interactive (let ((sitet (read-string "静态站点名：")))
                  (list sitet)))
   (cond         ;;emacs-china
         ((equal site "emacs-china")
-         (setq op/repository-directory "~/github/emacs-china.github.io"
-               op/site-domain "emacs-china.github.io"
-               op/theme 'emacs_love
-               op/personal-github-link "https://github.com/emacs-china"
-               op/personal-disqus-shortname "emacs-china"
-               op/personal-duoshuo-shortname "emacs-china"
-               op/site-main-title "EMACS-CHINA"
-               op/site-sub-title "=============>集思广益")
+         (setq aog/repository-directory "~/github/emacs-china.github.io"
+               aog/site-domain "emacs-china.github.io"
+               aog/theme 'emacs_love
+               aog/personal-github-link "https://github.com/emacs-china"
+               aog/personal-disqus-shortname "emacs-china"
+               aog/personal-duoshuo-shortname "emacs-china"
+               aog/site-main-title "EMACS-CHINA"
+               aog/site-sub-title "=============>集思广益")
          )
                 ;;xxxx
         ((equal site "xxxx")
-         (setq op/repository-directory "xxxx"
-               op/site-domain "xxxx"
-               op/theme 'mdo
-               op/personal-github-link "xxxx"
-               op/personal-disqus-shortname "xxxx"
-               op/personal-duoshuo-shortname "xxxx"
-               op/site-main-title "xxxx"
-               op/site-sub-title "xxxx")
+         (setq aog/repository-directory "xxxx"
+               aog/site-domain "xxxx"
+               aog/theme 'mdo
+               aog/personal-github-link "xxxx"
+               aog/personal-disqus-shortname "xxxx"
+               aog/personal-duoshuo-shortname "xxxx"
+               aog/site-main-title "xxxx"
+               aog/site-sub-title "xxxx")
          )
         (t nil)))

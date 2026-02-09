@@ -13,7 +13,7 @@ edit org-page-theme-kactus/templates/index.mustache , find "Your Name" and "Your
 
 change org-page config
 
-add (setq op/theme 'org-page-theme-kactus)
+add (setq aog/theme 'org-page-theme-kactus)
 
 ![image](https://dn-assets-gitcafe-com.qbox.me/venmos/org-page-theme-kactus/raw/master/1.png)
 

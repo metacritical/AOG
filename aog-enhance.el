@@ -32,24 +32,24 @@
 (require 'aog-vars)
 
 
-(defun op/get-theme-dir ()
+(defun aog/get-theme-dir ()
   "Return the resource storage directory, it is determined by variable
-`op/theme-root-directory' and `op/theme'."
+`aog/theme-root-directory' and `aog/theme'."
   (file-name-as-directory
    (expand-file-name
-    (format "%s/resources" (symbol-name op/theme))
-    op/theme-root-directory)))
+    (format "%s/resources" (symbol-name aog/theme))
+    aog/theme-root-directory)))
 
-(defun op/prepare-theme (pub-root-dir)
+(defun aog/prepare-theme (pub-root-dir)
   "Copy theme files to PUB-ROOT-DIR."
   (let ((pub-theme-dir (expand-file-name "media/" pub-root-dir))
-        (theme-dir (op/get-theme-dir)))
+        (theme-dir (aog/get-theme-dir)))
     (unless (file-directory-p theme-dir)
       (message "Theme %s not found, use default theme `mdo' instead."
-               (symbol-name op/theme))
-      (setq op/theme-root-directory (concat op/load-directory "themes/"))
-      (setq op/theme 'mdo)
-      (setq theme-dir (op/get-theme-dir)))
+               (symbol-name aog/theme))
+      (setq aog/theme-root-directory (concat aog/load-directory "themes/"))
+      (setq aog/theme 'mdo)
+      (setq theme-dir (aog/get-theme-dir)))
     (when (file-directory-p pub-theme-dir)
       (delete-directory pub-theme-dir t))
     (copy-directory theme-dir pub-theme-dir t t t)))

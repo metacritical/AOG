@@ -6,8 +6,8 @@
 
 * v0.7
 
-  - Improved helper function =op/insert-options-template=.
-  - Introduced new helper function =op/new-post=.
+  - Improved helper function =aog/insert-options-template=.
+  - Introduced new helper function =aog/new-post=.
 
 * v0.6
 

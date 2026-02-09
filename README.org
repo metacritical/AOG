@@ -34,7 +34,7 @@
       files will be on the "source" branch and the generated html files
       will be on the "master" branch (the branch names can be
       customized). Repos may be created manually or by
-      org-page's =op/new-repository= command.
+      org-page's =aog/new-repository= command.
    2. Specify a "base commit" (the most recent prior commit will be used if
       omitted). org-page will read changes between the latest commit
       and the specified base commit on branch "source". The changes
@@ -67,33 +67,33 @@
    : ;;; the following is only needed if you install org-page manually
    : (add-to-list 'load-path "path/to/org-page")
    : (require 'org-page)
-   : (setq op/repository-directory "path/to/your/org/repository")
-   : (setq op/site-domain "http://your.personal.site.com/")
+   : (setq aog/repository-directory "path/to/your/org/repository")
+   : (setq aog/site-domain "http://your.personal.site.com/")
    : ;;; for commenting, you can choose either disqus, duoshuo or hashover
-   : (setq op/personal-disqus-shortname "your_disqus_shortname")
-   : (setq op/personal-duoshuo-shortname "your_duoshuo_shortname")
-   : (setq op/hashover-comments t)
+   : (setq aog/personal-disqus-shortname "your_disqus_shortname")
+   : (setq aog/personal-duoshuo-shortname "your_duoshuo_shortname")
+   : (setq aog/hashover-comments t)
    : ;;; the configuration below are optional
-   : (setq op/personal-google-analytics-id "your_google_analytics_id")
+   : (setq aog/personal-google-analytics-id "your_google_analytics_id")
 
 ** Publication
 
    Evaluate the following code to publish your changes:
 
-   : (op/do-publication nil "HEAD^1" "~/org-pub/" nil)
+   : (aog/do-publication nil "HEAD^1" "~/org-pub/" nil)
 
    or just
 
-   : (op/do-publication)
+   : (aog/do-publication)
 
-   You can also run it interactively: =M-x op/do-publication <Enter>=
+   You can also run it interactively: =M-x aog/do-publication <Enter>=
 
 *NOTE: AOG does NOT commit your org files to git, so you have to commit them
 manually before you run this command.*
 
 ** Site preview in browser
 
-   Just run =M-x op/do-publication-and-preview-site <Enter>=, the site will be 
+   Just run =M-x aog/do-publication-and-preview-site <Enter>=, the site will be 
    published in =~/.op-tmp=, then it will be previewed in browser automatically.
 
 * Dependencies

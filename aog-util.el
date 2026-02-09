@@ -144,7 +144,7 @@ T[0-9][0-9]:[0-9][0-9]" date-str)
   "Confound email to prevent spams using simple rule:
 replace . with <dot>, @ with <at>, e.g.
 name@domain.com => name <at> domain <dot> com"
-  (if (not op/confound-email) email
+  (if (not aog/confound-email) email
     (replace-regexp-in-string
      " +" " " (replace-regexp-in-string
                "@" " <at> " (replace-regexp-in-string "\\." " <dot> " email)))))
@@ -183,8 +183,8 @@ encoded ones, like %3E, but we do NOT want this kind of url."
   (downcase (replace-regexp-in-string "[ .,:;/\\]+" "-" (replace-regexp-in-string "[.!?'\"]" "" (replace-regexp-in-string "[.!?]+$" "" string)))))
 
 (defun get-full-url (uri)
-  "Get the full url of URI, by joining `op/site-domain' with URI."
-  (concat (replace-regexp-in-string "/?$" "" op/site-domain) uri))
+  "Get the full url of URI, by joining `aog/site-domain' with URI."
+  (concat (replace-regexp-in-string "/?$" "" aog/site-domain) uri))
 
 (defun file-to-string (file)
   "Read the content of FILE and return it as a string."

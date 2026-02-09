@@ -34,160 +34,160 @@
 (require 'aog-git)
 
 
-(defun op/get-template-dir ()
+(defun aog/get-template-dir ()
   "Return the template directory, it is determined by variable
-`op/theme-root-directory' with `op/theme' or `op/template-directory'."
-  (or op/template-directory
+`aog/theme-root-directory' with `aog/theme' or `aog/template-directory'."
+  (or aog/template-directory
       (file-name-as-directory
        (expand-file-name
-        (format "%s/templates" (symbol-name op/theme))
-        op/theme-root-directory))))
+        (format "%s/templates" (symbol-name aog/theme))
+        aog/theme-root-directory))))
 
-(defun op/get-cache-item (key)
-  "Get the item associated with KEY in `op/item-cache', if `op/item-cache' is
+(defun aog/get-cache-item (key)
+  "Get the item associated with KEY in `aog/item-cache', if `aog/item-cache' is
 nil or there is no item associated with KEY in it, return nil."
-  (and op/item-cache
-       (plist-get op/item-cache key)))
+  (and aog/item-cache
+       (plist-get aog/item-cache key)))
 
-(defun op/update-cache-item (key value)
-  "Update the item associated with KEY in `op/item-cache', if `op/item-cache' is
+(defun aog/update-cache-item (key value)
+  "Update the item associated with KEY in `aog/item-cache', if `aog/item-cache' is
 nil, initialize it."
-  (if op/item-cache
-      (plist-put op/item-cache key value)
-    (setq op/item-cache `(,key ,value)))
+  (if aog/item-cache
+      (plist-put aog/item-cache key value)
+    (setq aog/item-cache `(,key ,value)))
   value)
 
-(defmacro op/get-cache-create (key &rest body)
-  "Firstly get item from `op/item-cache' with KEY, if item not found, evaluate
+(defmacro aog/get-cache-create (key &rest body)
+  "Firstly get item from `aog/item-cache' with KEY, if item not found, evaluate
 BODY and push the result into cache and return it."
-  `(or (op/get-cache-item ,key)
-       (op/update-cache-item ,key (funcall (lambda () ,@body)))))
+  `(or (aog/get-cache-item ,key)
+       (aog/update-cache-item ,key (funcall (lambda () ,@body)))))
 
-(defun op/get-category-name (category)
-  "Return the name of the CATEGORY based on op/category-config-alist :label property. 
+(defun aog/get-category-name (category)
+  "Return the name of the CATEGORY based on aog/category-config-alist :label property. 
 Default to capitalized CATEGORY name if no :label property found."
-  (let* ((config (cdr (or (assoc category op/category-config-alist)
-                          (assoc "blog" op/category-config-alist)))))
+  (let* ((config (cdr (or (assoc category aog/category-config-alist)
+                          (assoc "blog" aog/category-config-alist)))))
     (or (plist-get config :label)
         (capitalize category))))
 
-(defun op/render-header (&optional param-table)
+(defun aog/render-header (&optional param-table)
   "Render the header on each page. PARAM-TABLE is the hash table from mustache
 to render the template. If it is not set or nil, this function will try to build
 a hash table accordint to current buffer."
   (mustache-render
-   (op/get-cache-create
+   (aog/get-cache-create
     :header-template
     (message "Read header.mustache from file")
-    (file-to-string (concat (op/get-template-dir) "header.mustache")))
+    (file-to-string (concat (aog/get-template-dir) "header.mustache")))
    (or param-table
-       (ht ("page-title" (concat (or (op/read-org-option "TITLE") "Untitled")
-                                 " - " op/site-main-title))
-           ("author" (or (op/read-org-option "AUTHOR")
+       (ht ("page-title" (concat (or (aog/read-org-option "TITLE") "Untitled")
+                                 " - " aog/site-main-title))
+           ("author" (or (aog/read-org-option "AUTHOR")
                          user-full-name "Unknown Author"))
-           ("description" (op/read-org-option "DESCRIPTION"))
-           ("keywords" (op/read-org-option "KEYWORDS"))))))
+           ("description" (aog/read-org-option "DESCRIPTION"))
+           ("keywords" (aog/read-org-option "KEYWORDS"))))))
 
-(defun op/render-navigation-bar (&optional param-table)
+(defun aog/render-navigation-bar (&optional param-table)
   "Render the navigation bar on each page. it will be read firstly from
-`op/item-cache', if there is no cached content, it will be rendered
+`aog/item-cache', if there is no cached content, it will be rendered
 and pushed into cache from template. PARAM-TABLE is the hash table for mustache
 to render the template. If it is not set or nil, this function will try to
 render from a default hash table."
-  (op/get-cache-create
+  (aog/get-cache-create
    :nav-bar-html
    (message "Render navigation bar from template")
    (mustache-render
-    (op/get-cache-create
+    (aog/get-cache-create
      :nav-bar-template
      (message "Read nav.mustache from file")
-     (file-to-string (concat (op/get-template-dir) "nav.mustache")))
+     (file-to-string (concat (aog/get-template-dir) "nav.mustache")))
     (or param-table
-        (ht-merge (ht ("site-main-title" op/site-main-title)
-                      ("site-sub-title" op/site-sub-title)
+        (ht-merge (ht ("site-main-title" aog/site-main-title)
+                      ("site-sub-title" aog/site-sub-title)
                       ("nav-categories"
                        (mapcar
                         #'(lambda (cat)
                             (ht ("category-uri"
                                  (concat "/" (encode-string-to-url cat) "/"))
-                                ("category-name" (op/get-category-name cat))))
+                                ("category-name" (aog/get-category-name cat))))
                         (sort (cl-remove-if
                                #'(lambda (cat)
                                    (or (string= cat "index")
                                        (string= cat "about")))
-                               (op/get-file-category nil))
+                               (aog/get-file-category nil))
                               'string-lessp)))
-                      ("github" op/personal-github-link)
-                      ("avatar" op/personal-avatar)
+                      ("github" aog/personal-github-link)
+                      ("avatar" aog/personal-avatar)
                       ("site-domain" (if (string-match
                                           "\\`https?://\\(.*[a-zA-Z]\\)/?\\'"
-                                          op/site-domain)
-                                         (match-string 1 op/site-domain)
-                                       op/site-domain)))
-                  (if op/organization (ht ("authors-li" t)) (ht ("avatar" op/personal-avatar))))))))
+                                          aog/site-domain)
+                                         (match-string 1 aog/site-domain)
+                                       aog/site-domain)))
+                  (if aog/organization (ht ("authors-li" t)) (ht ("avatar" aog/personal-avatar))))))))
 
-(defun op/render-content (&optional template param-table)
+(defun aog/render-content (&optional template param-table)
   "Render the content on each page. TEMPLATE is the template name for rendering,
 if it is not set of nil, will use default post.mustache instead. PARAM-TABLE is
-similar to `op/render-header'. `op/highlight-render' is `js' or `htmlize'."
+similar to `aog/render-header'. `aog/highlight-render' is `js' or `htmlize'."
   (mustache-render
-   (op/get-cache-create
+   (aog/get-cache-create
     (if template
         (intern (replace-regexp-in-string "\\.mustache$" "-template" template))
       :post-template)
     (message (concat "Read " (or template "post.mustache") " from file"))
-    (file-to-string (concat (op/get-template-dir)
+    (file-to-string (concat (aog/get-template-dir)
                             (or template "post.mustache"))))
    (or param-table
-       (ht ("title" (or (op/read-org-option "TITLE") "Untitled"))
+       (ht ("title" (or (aog/read-org-option "TITLE") "Untitled"))
            ("content"
-            (cond ((eq op/highlight-render 'js)
+            (cond ((eq aog/highlight-render 'js)
                    (progn
                      (cl-letf (((symbol-function'org-html-fontify-code)
                                 #'(lambda (code lang)
                                     (when code
                                       (org-html-encode-plain-text code)))))
-                       (org-export-as op/export-backend nil nil t nil))))
-                  ((eq op/highlight-render 'htmlize)
-                   (org-export-as op/export-backend nil nil t nil))))))))
+                       (org-export-as aog/export-backend nil nil t nil))))
+                  ((eq aog/highlight-render 'htmlize)
+                   (org-export-as aog/export-backend nil nil t nil))))))))
 
-(defun op/render-footer (&optional param-table)
+(defun aog/render-footer (&optional param-table)
   "Render the footer on each page. PARAM-TABLE is similar to
-`op/render-header'."
+`aog/render-header'."
   (mustache-render
-   (op/get-cache-create
+   (aog/get-cache-create
     :footer-template
     (message "Read footer.mustache from file")
-    (file-to-string (concat (op/get-template-dir) "footer.mustache")))
+    (file-to-string (concat (aog/get-template-dir) "footer.mustache")))
    (or param-table
        (let* ((filename (buffer-file-name))
-              (title (or (op/read-org-option "TITLE") "Untitled"))
+              (title (or (aog/read-org-option "TITLE") "Untitled"))
               (date (fix-timestamp-string
-                     (or (op/read-org-option "DATE")
+                     (or (aog/read-org-option "DATE")
                          (format-time-string "%Y-%m-%d"))))
-              (tags (op/read-org-option "TAGS"))
+              (tags (aog/read-org-option "TAGS"))
               (tags (if tags
                         (mapcar
                          #'(lambda (tag-name)
-                             (ht ("link" (op/generate-tag-uri tag-name))
+                             (ht ("link" (aog/generate-tag-uri tag-name))
                                  ("name" tag-name)))
                          (delete "" (mapcar 'trim-string (split-string tags "[:,]+" t))))))
-              (category (funcall (or op/retrieve-category-function
-                                     #'op/get-file-category)
+              (category (funcall (or aog/retrieve-category-function
+                                     #'aog/get-file-category)
                                  filename))
-              (config (cdr (or (assoc category op/category-config-alist)
-                               (assoc "blog" op/category-config-alist))))
+              (config (cdr (or (assoc category aog/category-config-alist)
+                               (assoc "blog" aog/category-config-alist))))
               (uri (funcall (plist-get config :uri-generator)
                             (plist-get config :uri-template) date title)))
          (ht ("show-meta" (plist-get config :show-meta))
              ("show-comment" (plist-get config :show-comment))
-             ("date" (funcall op/date-final-format date))
+             ("date" (funcall aog/date-final-format date))
              ("mod-date" (funcall
-			  op/date-final-format
+			  aog/date-final-format
 			  (if (not filename)
 			      (format-time-string "%Y-%m-%d")
-			    (or (op/git-last-change-date
-				 op/repository-directory
+			    (or (aog/git-last-change-date
+				 aog/repository-directory
 				 filename)
 				(format-time-string
 				 "%Y-%m-%d"
@@ -199,53 +199,53 @@ similar to `op/render-header'. `op/highlight-render' is `js' or `htmlize'."
                                  (mustache-render
                                   "<a href=\"{{link}}\">{{name}}</a>" tag))
                              tags ", ")))
-             ("author" (or (op/read-org-option "AUTHOR")
+             ("author" (or (aog/read-org-option "AUTHOR")
                            user-full-name
                            "Unknown Author"))
-	     ("hashover-comment" (and (boundp 'op/hashover-comments)
-				      op/hashover-comments))
+	     ("hashover-comment" (and (boundp 'aog/hashover-comments)
+				      aog/hashover-comments))
              ("disqus-id" uri)
              ("disqus-url" (get-full-url uri))
-             ("disqus-comment" (and (boundp 'op/personal-disqus-shortname)
-                                    op/personal-disqus-shortname))
-             ("disqus-shortname" op/personal-disqus-shortname)
-             ("duoshuo-comment" (and (boundp 'op/personal-duoshuo-shortname)
-                                     op/personal-duoshuo-shortname))
-             ("duoshuo-shortname" op/personal-duoshuo-shortname)
-             ("google-analytics" (and (boundp 'op/personal-google-analytics-id)
-                                      op/personal-google-analytics-id))
-             ("google-analytics-id" op/personal-google-analytics-id)
-             ("creator-info" op/html-creator-string)
-             ("email" (confound-email (or (op/read-org-option "EMAIL")
+             ("disqus-comment" (and (boundp 'aog/personal-disqus-shortname)
+                                    aog/personal-disqus-shortname))
+             ("disqus-shortname" aog/personal-disqus-shortname)
+             ("duoshuo-comment" (and (boundp 'aog/personal-duoshuo-shortname)
+                                     aog/personal-duoshuo-shortname))
+             ("duoshuo-shortname" aog/personal-duoshuo-shortname)
+             ("google-analytics" (and (boundp 'aog/personal-google-analytics-id)
+                                      aog/personal-google-analytics-id))
+             ("google-analytics-id" aog/personal-google-analytics-id)
+             ("creator-info" aog/html-creator-string)
+             ("email" (confound-email (or (aog/read-org-option "EMAIL")
                                           user-mail-address
                                           "Unknown Email"))))))))
 
 ;;; this function is deprecated
-(defun op/update-default-template-parameters ()
+(defun aog/update-default-template-parameters ()
   "Update the default template parameters. It is only needed when user did some
 customization to relevant variables."
   (ht-update
-   op/default-template-parameters
-   (ht ("site-main-title" op/site-main-title)
-       ("site-sub-title" op/site-sub-title)
-       ("github" op/personal-github-link)
+   aog/default-template-parameters
+   (ht ("site-main-title" aog/site-main-title)
+       ("site-sub-title" aog/site-sub-title)
+       ("github" aog/personal-github-link)
        ("site-domain" (if (string-match "\\`https?://\\(.*[a-zA-Z]\\)/?\\'"
-                                        op/site-domain)
-                          (match-string 1 op/site-domain)
-                        op/site-domain))
-       ("disqus-shortname" op/personal-disqus-shortname)
-       ("disqus-comment" (if op/personal-disqus-shortname t nil))
-       ("duoshuo-shortname" op/personal-duoshuo-shortname)
-       ("duoshuo-comment" (if op/personal-duoshuo-shortname t nil))
-       ("google-analytics-id" op/personal-google-analytics-id)
-       ("google-analytics" (if op/personal-google-analytics-id t nil))))
-  op/default-template-parameters)
+                                        aog/site-domain)
+                          (match-string 1 aog/site-domain)
+                        aog/site-domain))
+       ("disqus-shortname" aog/personal-disqus-shortname)
+       ("disqus-comment" (if aog/personal-disqus-shortname t nil))
+       ("duoshuo-shortname" aog/personal-duoshuo-shortname)
+       ("duoshuo-comment" (if aog/personal-duoshuo-shortname t nil))
+       ("google-analytics-id" aog/personal-google-analytics-id)
+       ("google-analytics" (if aog/personal-google-analytics-id t nil))))
+  aog/default-template-parameters)
 
 ;;; this function is deprecated
-(defun op/compose-template-parameters (attr-plist content)
+(defun aog/compose-template-parameters (attr-plist content)
   "Compose parameters for org file represented in current buffer.
 ATTR-PLIST is the attribute plist of the buffer, retrieved by the combination of
-`org-export--get-inbuffer-options' and `op/get-inbuffer-extra-options'."
+`org-export--get-inbuffer-options' and `aog/get-inbuffer-extra-options'."
   (let* ((info
           (org-combine-plists
            (org-export--get-global-options 'html)
@@ -271,17 +271,17 @@ ATTR-PLIST is the attribute plist of the buffer, retrieved by the combination of
                      #'(lambda (tag-name)
                          (mustache-render
                           "<a href=\"{{link}}\">{{name}}</a>"
-                          (ht ("link" (op/generate-tag-uri tag-name))
+                          (ht ("link" (aog/generate-tag-uri tag-name))
                               ("name" tag-name))))
                      (plist-get info :tags) ", "))
          (show-comment (eq category 'blog))
          (disqus-id (plist-get info :uri))
          (disqus-url (get-full-url disqus-id))
          (param-table (ht-create)))
-    (ht-update param-table op/default-template-parameters)
+    (ht-update param-table aog/default-template-parameters)
     (ht-update
      param-table
-     (ht ("page-title"        (concat title " - " op/site-main-title))
+     (ht ("page-title"        (concat title " - " aog/site-main-title))
          ("author"            author)
          ("description"       description)
          ("keywords"          keywords)

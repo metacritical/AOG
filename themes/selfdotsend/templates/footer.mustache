@@ -1,0 +1,50 @@
+<div>
+  {{#show-meta}}
+  <section id="wrapper" class="post-meta-wrap">
+    <div class="post-meta">
+      <span title="post date" class="post-info post-info--date">{{{date}}}</span>
+      <span title="author" class="post-info post-info--author">{{author}}</span>
+    </div>
+  </section>
+  {{/show-meta}}
+  {{#show-comment}}
+  {{#disqus-comment}}
+  <section id="comments" class="comments">
+    <h1>Responses</h1>
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+      var disqus_identifier = "{{disqus-id}}";
+      var disqus_url = "{{disqus-url}}";
+      var disqus_shortname = "{{disqus-shortname}}";
+      (function() {
+        var dsq = document.createElement("script");
+        dsq.type = "text/javascript";
+        dsq.async = true;
+        dsq.src = "https://" + disqus_shortname + ".disqus.com/embed.js";
+        (document.head || document.body).appendChild(dsq);
+      })();
+    </script>
+  </section>
+  {{/disqus-comment}}
+  {{/show-comment}}
+  <script src="/media/js/prettify.js"></script>
+  <script src="/media/js/main.js"></script>
+  <script src="/media/js/theme-switcher.js"></script>
+  <script src="/media/js/search.js"></script>
+  <script src="/media/js/nano-chat.js"></script>
+  <section id="wrapper">
+    <br />
+    <br />
+    <div align="center">
+      <footer id="footer">
+        <p class="small">
+          Copyright &copy; 2012 - <span id="footerYear"></span> <a href="mailto:{{email}}">{{author}}</a>
+          &nbsp;&nbsp;-&nbsp;&nbsp;
+          Powered by <a href="https://github.com/metacritical/AOG" target="_blank">AOG</a>
+          <script type="text/javascript">document.getElementById("footerYear").innerHTML = (new Date()).getFullYear();</script>
+        </p>
+        <br />
+      </footer>
+    </div>
+  </section>
+</div>

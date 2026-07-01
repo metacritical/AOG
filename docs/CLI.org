@@ -1,0 +1,237 @@
+#+TITLE: AOG CLI Guide
+#+AUTHOR: Pankaj Doharey
+
+* Overview
+
+AOG ships with a terminal CLI in =bin/aog=. It wraps the Emacs Lisp publishing
+engine and provides commands to scaffold a new site, publish an existing one,
+create drafts, and preview the output locally.
+
+* Installation
+
+The CLI is a single Bash script. Add the AOG =bin/= directory to your PATH:
+
+#+BEGIN_EXAMPLE
+git clone git@github.com:metacritical/AOG.git
+cd AOG
+export PATH="$PWD/bin:$PATH"
+#+END_EXAMPLE
+
+For persistence, add the =export PATH= line to your shell profile.
+
+AOG still expects Emacs to be available on your system, and the same Elisp
+libraries that the batch publisher needs (=mustache.el=, =htmlize.el=, =dash.el=,
+=ht.el=).
+
+* Commands
+
+** =aog create <site_name> [target_dir]=
+
+Scaffolds a new blog repository. The site name is converted to a slug for the
+new directory.
+
+#+BEGIN_EXAMPLE
+aog create "My New Site"
+# creates ./my-new-site/
+
+aog create "My New Site" ~/sites
+# creates ~/sites/my-new-site/
+#+END_EXAMPLE
+
+The scaffold includes:
+
+- =index.org= and =about.org= with fixed URIs.
+- =posts/first-post.org= as a sample published article.
+- =drafts/=, =assets/=, =media/=, =tags/= directories.
+- =aog-site.el= for site-wide AOG configuration.
+- =scripts/new-article.sh= for creating drafts/posts.
+- =publish.sh= to drive the AOG build.
+- =README.md= with quick-start instructions.
+
+** =aog publish [repo_dir] [output_dir]=
+
+Runs AOG publication. Defaults to the current directory and =./public=.
+
+#+BEGIN_EXAMPLE
+aog publish
+aog publish ~/my-blog
+aog publish ~/my-blog /tmp/aog-output
+#+END_EXAMPLE
+
+This command is the raw AOG build. Downstream repositories often have a richer
+=publish.sh= that calls =aog publish= and then applies site-specific
+post-processing (asset copying, URL normalization, syntax highlighting,
+search-index generation, etc.).
+
+** =aog preview [repo_dir] [output_dir] [port]=
+
+Publishes the site and starts a Python HTTP server on the chosen port (default
+8080).
+
+#+BEGIN_EXAMPLE
+aog preview
+aog preview ~/my-blog 8080
+aog preview ~/my-blog /tmp/aog-output 9000
+#+END_EXAMPLE
+
+** =aog new [repo_dir] [--publish] "Title"=
+
+Creates a new article. By default it becomes a draft in =drafts/=. With
+=--publish= it is placed directly in =posts/=.
+
+#+BEGIN_EXAMPLE
+aog new "Gap Buffers in Scheme"
+aog new --publish "Gap Buffers in Scheme"
+aog new ~/my-blog "Gap Buffers in Scheme"
+aog new ~/my-blog --publish "Gap Buffers in Scheme"
+#+END_EXAMPLE
+
+The generated Org file contains a =#+TITLE= and a =#+URI= whose slug is derived
+from the title. The slug is lowercased, non-alphanumeric characters become
+hyphens, and consecutive or leading/trailing hyphens are collapsed.
+
+** =aog ls [repo_dir]=
+
+Lists draft Org files in =drafts/=.
+
+#+BEGIN_EXAMPLE
+aog ls
+aog ls ~/my-blog
+#+END_EXAMPLE
+
+* Site Configuration
+
+A scaffolded site contains =aog-site.el= at its root. This file is loaded by
+the CLI before publication. You can set the domain, title, subtitle, theme, and
+optional integrations there:
+
+#+BEGIN_SRC emacs-lisp
+(setq aog/site-domain "https://example.com"
+      aog/site-main-title "My AOG Blog"
+      aog/site-sub-title "Built with AOG"
+      aog/personal-github-link "https://github.com/your-user"
+      aog/theme 'selfdotsend
+      aog/personal-disqus-shortname nil)
+#+END_SRC
+
+The CLI falls back to sensible defaults if =aog-site.el= is missing or if a
+variable is not set.
+
+* Slug Generation And =#+URI=
+
+AOG determines the URL of an Org post through =aog/generate-uri=. The default
+blog URI template is:
+
+#+BEGIN_EXAMPLE
+/blog/%y/%m/%d/%t/
+#+END_EXAMPLE
+
+Where:
+
+- =%y=, =%m=, =%d= are replaced by the post date.
+- =%t= is replaced by a URL-encoded version of the post title.
+
+If a post contains an explicit =#+URI= line, AOG normally uses it instead of the
+template. For example:
+
+#+BEGIN_EXAMPLE
+#+URI: /blog/%y/%m/%d/my-custom-slug
+#+END_EXAMPLE
+
+This lets authors keep stable URLs even when titles change.
+
+** Title-Derived Slugs
+
+Some workflows prefer the slug to /always/ follow the current title. Set
+=aog/uri-prefer-title-slug= to non-nil in =aog-site.el= (or in the CLI's
+Elisp bootstrap):
+
+#+BEGIN_SRC emacs-lisp
+(setq aog/uri-prefer-title-slug t)
+#+END_SRC
+
+When enabled, AOG ignores any hard-coded =#+URI= and generates the slug from
+the current =#+TITLE=. This is useful when drafts mature and their titles
+drift away from the placeholder slug created by =aog new=.
+
+* Git-Aware Publishing
+
+AOG discovers source files through Git. By default it uses =git ls-files= for
+tracked files and =git ls-files --others --exclude-standard= for untracked
+files. This means:
+
+- New drafts that are not yet tracked are still published.
+- Renamed files are visible under their new names, not their old tracked names.
+- Deleted tracked files are /not/ resurrected.
+
+If you pass an explicit Git branch to publication functions, AOG falls back to
+=git ls-tree= for that branch.
+
+* Downstream Repository Scripts
+
+The CLI is intentionally minimal. Real blog repositories usually contain a
+site-specific =publish.sh= that orchestrates AOG plus extra steps:
+
+- Render Org Babel diagrams.
+- Copy custom media assets.
+- Normalize file:// URLs.
+- Inject analytics, comments, or code-highlighting scripts.
+- Generate archive, drafts, and search-index pages.
+- Apply CSS/JS post-processing.
+
+The CLI's =publish= command is the raw AOG step. Use the repository's own
+=publish.sh= when you need the full pipeline.
+
+* Environment Variables
+
+| Variable         | Effect                                           |
+|------------------+--------------------------------------------------|
+| =EMACS_BIN=      | Emacs executable to use (default: =emacs=)       |
+| =AOG_THEME=      | Default theme for =aog create= (default: =selfdotsend=) |
+| =AOG_INCLUDE_DRAFTS= | Set to =1= to include drafts in =aog publish= / =preview=. The CLI defaults to excluding them. |
+
+* Examples
+
+** Create and preview a new site
+
+#+BEGIN_EXAMPLE
+aog create "Computing Notes"
+cd computing-notes
+aog preview
+#+END_EXAMPLE
+
+** Write a draft and publish it later
+
+#+BEGIN_EXAMPLE
+aog new "My First Draft"
+# edit drafts/my-first-draft.org
+aog publish
+#+END_EXAMPLE
+
+** Publish directly to posts
+
+#+BEGIN_EXAMPLE
+aog new --publish "Announcement Post"
+aog publish
+#+END_EXAMPLE
+
+* Troubleshooting
+
+** =aog publish= cannot find a renamed file
+
+Ensure the new filename exists in the working tree. AOG combines tracked files
+that still exist with untracked files, so uncommitted renames and new drafts
+are visible. If the old filename was staged but deleted on disk, it is
+ignored.
+
+** URLs do not match my =#+URI= lines
+
+Check whether =aog/uri-prefer-title-slug= is set in =aog-site.el= or in the
+bootstrap Elisp. When it is non-nil, =#+URI= is intentionally ignored.
+
+** Theme changes are not reflected
+
+A scaffolded site uses the theme named in =aog-site.el=. If you change the
+theme, run =aog publish= again; AOG copies theme resources into the output.
+Site-specific downstream scripts may overwrite some theme files with custom
+media assets, so inspect both =themes/= and =media/= when debugging styling.

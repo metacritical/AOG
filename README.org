@@ -103,39 +103,38 @@ M-x aog/do-publication
 
 * CLI Workflow
 
-AOG now ships a terminal CLI at =bin/aog= so users can scaffold and publish
-without cloning a pre-made site repository.
+AOG ships a terminal CLI at =bin/aog= so users can scaffold and publish without
+cloning a pre-made site repository. A complete guide is in =docs/CLI.org=.
 
 Install to PATH (example):
-
-#+BEGIN_EXAMPLE
-aog create <site_name> [target_dir]
-aog publish [repo_dir] [output_dir]
-aog preview [repo_dir] [output_dir] [port]
-aog new [repo_dir] [--publish] "Title"
-aog ls [repo_dir]
-#+END_EXAMPLE
-
-Rails-like quick start:
 
 #+BEGIN_EXAMPLE
 git clone git@github.com:metacritical/AOG.git
 cd AOG
 export PATH="$PWD/bin:$PATH"
+#+END_EXAMPLE
 
+Quick overview of commands:
+
+#+BEGIN_EXAMPLE
+aog create <site_name> [target_dir]   # scaffold a new site
+aog publish [repo_dir] [output_dir]  # run AOG publication
+aog preview [repo_dir] [output_dir] [port]  # publish and serve locally
+aog new [repo_dir] [--publish] "Title"      # create a draft or post
+aog ls [repo_dir]                    # list drafts
+#+END_EXAMPLE
+
+Rails-like quick start:
+
+#+BEGIN_EXAMPLE
 aog create "My New Site"
 cd my-new-site
 ./publish.sh
 python -m http.server 8080 -d public
 #+END_EXAMPLE
 
-Command intent:
-
-1. =create=: scaffold a complete starter site (=index.org=, =about.org=, first post, site config, scripts).
-2. =publish=: run AOG publication into output dir (default =public/=).
-3. =preview=: publish and serve output via Python on selected port.
-4. =new=: create draft by default, or publish-ready post with =--publish=.
-5. =ls=: list draft Org files.
+See =docs/CLI.org= for details on site configuration, slug generation,
+git-aware publishing, environment variables, and downstream repository scripts.
 
 
 * Theme Development

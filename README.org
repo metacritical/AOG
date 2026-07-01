@@ -101,38 +101,41 @@ M-x aog/do-publication
 #+END_EXAMPLE
 
 
-* CLI Wrapper Workflow
+* CLI Workflow
 
-In this environment, a companion shell wrapper named =aog= is used to drive
-AOG + blog automation from the terminal.
+AOG now ships a terminal CLI at =bin/aog= so users can scaffold and publish
+without cloning a pre-made site repository.
 
-Default locations used by the wrapper:
-
-1. =AOG_DIR= -> =/Users/pankajdoharey/Development/Projects/AOG=
-2. =AOG_REPO_DIR= -> =/Users/pankajdoharey/Development/metacritical.github.io=
-
-Current commands:
+Install to PATH (example):
 
 #+BEGIN_EXAMPLE
-aog build [repo_dir]
-aog dev [repo_dir]
-aog new [--publish] "Title"
+aog create <site_name> [target_dir]
+aog publish [repo_dir] [output_dir]
+aog preview [repo_dir] [output_dir] [port]
 aog new [repo_dir] [--publish] "Title"
 aog ls [repo_dir]
-aog publish [repo_dir] [output_dir]
-aog draft-publish [repo_dir] [output_dir]
-aog preview [repo_dir] [output_dir] [port]
+#+END_EXAMPLE
+
+Rails-like quick start:
+
+#+BEGIN_EXAMPLE
+git clone git@github.com:metacritical/AOG.git
+cd AOG
+export PATH="$PWD/bin:$PATH"
+
+aog create "My New Site"
+cd my-new-site
+./publish.sh
+python -m http.server 8080 -d public
 #+END_EXAMPLE
 
 Command intent:
 
-1. =build=: run repository =publish.sh= pipeline (full production-style build).
-2. =dev=: run =doorman= process set (watch + local web + local editor stack).
-3. =new=: create draft by default, or publish-ready post with =--publish=.
-4. =ls=: list draft Org files.
-5. =publish=: run AOG publication only.
-6. =draft-publish=: run AOG publication including drafts.
-7. =preview=: publish then serve via Python HTTP on selected port.
+1. =create=: scaffold a complete starter site (=index.org=, =about.org=, first post, site config, scripts).
+2. =publish=: run AOG publication into output dir (default =public/=).
+3. =preview=: publish and serve output via Python on selected port.
+4. =new=: create draft by default, or publish-ready post with =--publish=.
+5. =ls=: list draft Org files.
 
 
 * Theme Development

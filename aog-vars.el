@@ -144,6 +144,11 @@ default value is `aog/get-file-category'."
   "Temporary directory path for site preview."
   :group 'org-page :type 'string)
 
+(defcustom aog/uri-prefer-title-slug nil
+  "When non-nil, ignore any hard-coded #+URI option and generate the slug from
+  the current #+TITLE. This prevents stale placeholder slugs from being used
+  when an article's title has changed since it was first created.")
+
 (defvar aog/category-config-alist
   '(("blog" ;; this is the default configuration
     :show-meta t

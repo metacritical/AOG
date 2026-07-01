@@ -11,17 +11,20 @@
   {{#disqus-comment}}
   <section id="comments" class="comments">
     <h1>Responses</h1>
-    <div id="disqus_thread"></div>
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
     <script type="text/javascript">
-      var disqus_identifier = "{{disqus-id}}";
-      var disqus_url = "{{disqus-url}}";
-      var disqus_shortname = "{{disqus-shortname}}";
+      var disqus_config = function () {
+        this.page.url = "{{disqus-url}}";
+        this.page.identifier = "{{disqus-id}}";
+      };
       (function() {
-        var dsq = document.createElement("script");
-        dsq.type = "text/javascript";
-        dsq.async = true;
-        dsq.src = "https://" + disqus_shortname + ".disqus.com/embed.js";
-        (document.head || document.body).appendChild(dsq);
+        var d = document, s = d.createElement("script");
+        s.async = true;
+        s.src = "https://{{disqus-shortname}}.disqus.com/embed.js";
+        s.setAttribute("data-timestamp", +new Date());
+        (d.head || d.body).appendChild(s);
       })();
     </script>
   </section>

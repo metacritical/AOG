@@ -44,11 +44,21 @@
 presented by REPO-DIR, if optional BRANCH is offered, will check that branch
 instead of pointer HEAD."
   (let* ((org-file-ext ".org")
-         (output (aog/git--run repo-dir "ls-tree" "-r" "--name-only"
-                               (or branch "HEAD"))))
+         (output (if branch
+                     (aog/git--run repo-dir "ls-tree" "-r" "--name-only" branch)
+                   ;; Use ls-files so staged and untracked files are visible,
+                   ;; not just the last committed tree.  Omit --cached so
+                   ;; deleted tracked files are not included.
+                   (aog/git--run repo-dir "ls-files" "--others"
+                                 "--exclude-standard"))))
     (--map (expand-file-name it repo-dir)
-           (--filter (string-suffix-p org-file-ext it t)
-                     (split-string output "\n")))))
+           (append
+            ;; Tracked files that still exist in the working tree.
+            (--filter (string-suffix-p org-file-ext it t)
+                      (split-string (aog/git--run repo-dir "ls-files") "\n"))
+            ;; Untracked files.
+            (--filter (string-suffix-p org-file-ext it t)
+                      (split-string output "\n"))))))
 
 (defun aog/git-branch-name (repo-dir)
   "Return name of current branch of git repository presented by REPO-DIR."

@@ -201,9 +201,13 @@ can contain following parameters:
 %m: month of creation date
 %d: day of creation date
 %f: base file name with suffix .html (a.org->a.html)
-%t: title of current buffer"
-  (let ((uri-template (or (aog/read-org-option "URI")
-                          default-uri-template))
+%t: title of current buffer
+If `aog/uri-prefer-title-slug' is non-nil, any hard-coded #+URI option is
+ignored and the slug is always derived from the current title."
+  (let ((uri-template (if aog/uri-prefer-title-slug
+                          default-uri-template
+                        (or (aog/read-org-option "URI")
+                            default-uri-template)))
         (date-list (split-string (if creation-date
                                      (fix-timestamp-string creation-date)
                                    (format-time-string "%Y-%m-%d"))
